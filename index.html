@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <title>GabiClick</title>
+  <style>
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+      background-color: #f0f0f0;
+      font-family: Arial, sans-serif;
+    }
+    h1 {
+      margin-bottom: 20px;
+    }
+    #gabicat {
+      cursor: pointer;
+      width: 300px;
+      height: auto;
+      transition: transform 0.1s;
+    }
+    #gabicat:active {
+      transform: scale(0.95);
+    }
+    #counter {
+      margin-top: 20px;
+      font-size: 24px;
+    }
+  </style>
+</head>
+<body>
+  <h1>GabiClick!</h1>
+  <img id="gabicat" src="gabi_closed.png" alt="Gabi" />
+  <div id="counter">Kliknięcia: 0</div>
+
+  <script>
+    const catImg = document.getElementById("gabicat");
+    const counterDisplay = document.getElementById("counter");
+    let count = 0;
+
+    catImg.addEventListener("mousedown", () => {
+      catImg.src = "gabi_open.png";
+    });
+    catImg.addEventListener("mouseup", () => {
+      catImg.src = "gabi_closed.png";
+    });
+    catImg.addEventListener("click", () => {
+      count++;
+      counterDisplay.textContent = `Kliknięcia: ${count}`;
+    });
+  </script>
+</body>
+</html>
