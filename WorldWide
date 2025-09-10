@@ -1,34 +1,48 @@
-(function() {
-    // Pobierz worldwide
-    const worldwideScores = window.leaderboards?.worldwide || [];
+(function waitAndUpdateWorldwide() {
+    if (window.leaderboards?.worldwide?.length > 0) {
+        const worldwideScores = window.leaderboards.worldwide;
 
-    // Stwórz kontener dla sekcji
-    const container = document.createElement('div');
-    container.style.border = "2px solid #4CAF50";
-    container.style.padding = "10px";
-    container.style.margin = "10px";
-    container.style.borderRadius = "8px";
-    container.style.backgroundColor = "#f9f9f9";
-    container.style.width = "300px";
+        // Sprawdź, czy kontener już istnieje
+        let container = document.getElementById('worldwide-container');
+        if (!container) {
+            // Stwórz kontener
+            container = document.createElement('div');
+            container.id = 'worldwide-container';
+            container.style.border = "2px solid #4CAF50";
+            container.style.padding = "10px";
+            container.style.margin = "10px";
+            container.style.borderRadius = "8px";
+            container.style.backgroundColor = "#f9f9f9";
+            container.style.width = "300px";
 
-    // Nagłówek z ikoną ziemi 🌍
-    const header = document.createElement('h2');
-    header.innerHTML = '🌍 Worldwide';
-    header.style.display = "flex";
-    header.style.alignItems = "center";
-    header.style.gap = "5px";
-    container.appendChild(header);
+            const header = document.createElement('h2');
+            header.innerHTML = '🌍 Worldwide';
+            header.style.display = "flex";
+            header.style.alignItems = "center";
+            header.style.gap = "5px";
+            container.appendChild(header);
 
-    // Lista wyników
-    const list = document.createElement('ol');
-    worldwideScores.forEach(score => {
-        const li = document.createElement('li');
-        li.textContent = `${score.name}: ${score.score}`;
-        list.appendChild(li);
-    });
-    container.appendChild(list);
+            const list = document.createElement('ol');
+            list.id = 'worldwide-list';
+            container.appendChild(list);
 
-    // Dodaj do body strony
-    document.body.appendChild(container);
+            document.body.appendChild(container);
+        }
+
+        // Aktualizuj listę wyników
+        const list = document.getElementById('worldwide-list');
+        list.innerHTML = ''; // wyczyść starą listę
+        worldwideScores.forEach(score => {
+            const li = document.createElement('li');
+            li.textContent = `${score.name}: ${score.score}`;
+            list.appendChild(li);
+        });
+
+        // Powtarzaj aktualizację co 5 sekund
+        setTimeout(waitAndUpdateWorldwide, 5000);
+    } else {
+        console.log("Czekam na załadowanie worldwide...");
+        setTimeout(waitAndUpdateWorldwide, 1000);
+    }
 })();
 
