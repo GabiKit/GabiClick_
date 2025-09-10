@@ -1,0 +1,2 @@
+let worldwideScores = window.leaderboards?.worldwide;
+console.log(worldwideScores);
