@@ -1,23 +1,43 @@
 (function() {
-    const intervalSeconds = 10; // co ile sekund pobierać wyniki
+    const intervalSeconds = 10; // co ile sekund sprawdzać wyniki
+    let lastScoresJSON = null;
     let count = 1;
 
-    const downloadScores = () => {
-        const worldwideScores = window.leaderboards?.worldwide || [];
-        const blob = new Blob([JSON.stringify(worldwideScores, null, 2)], { type: "application/json" });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = `worldwide_scores_${count}.json`; // kolejne pliki z numerem
-        a.click();
-        URL.revokeObjectURL(url);
-        console.log(`Pobrano plik worldwide_scores_${count}.json`);
-        count++;
+    const waitForWorldwide = () => {
+        if (window.leaderboards?.worldwide?.length > 0) {
+            console.log("Worldwide załadowane! Rozpoczynam pobieranie...");
+            startAutoDownload();
+        } else {
+            console.log("Czekam na załadowanie worldwide...");
+            setTimeout(waitForWorldwide, 1000); // sprawdzaj co 1 sekundę
+        }
     };
 
-    // Pobieraj od razu, a potem co intervalSeconds
-    downloadScores();
-    const timer = setInterval(downloadScores, intervalSeconds * 1000);
+    const startAutoDownload = () => {
+        const downloadScores = () => {
+            const worldwideScores = window.leaderboards?.worldwide || [];
+            const currentJSON = JSON.stringify(worldwideScores, null, 2);
 
-    // Aby zatrzymać automatyczne pobieranie, w konsoli wpisz: clearInterval(timer);
-})();
+            if (currentJSON !== lastScoresJSON) { // tylko jeśli zmieniły się wyniki
+                const blob = new Blob([currentJSON], { type: "application/json" });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement("a");
+                a.href = url;
+                a.download = `worldwide_scores_${count}.json`;
+                a.click();
+                URL.revokeObjectURL(url);
+                lastScoresJSON = currentJSON;
+                console.log(`Pobrano nowy plik worldwide_scores_${count}.json`);
+                count++;
+            } else {
+                console.log("Brak zmian w worldwide, pomijam pobieranie...");
+            }
+        };
+
+        // Pobieraj od razu, a potem co intervalSeconds
+        downloadScores();
+        const timer = setInterval(downloadScores, intervalSeconds * 1000);
+
+        // Aby zatrzymać automatyczne pobieranie, w konsoli wpisz:
+        // clearInterval(timer);
+    };
