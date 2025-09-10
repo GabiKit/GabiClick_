@@ -1,2 +1,11 @@
-let worldwideScores = window.leaderboards?.worldwide;
-console.log(worldwideScores);
+(function() {
+    const worldwideScores = window.leaderboards?.worldwide || [];
+    const blob = new Blob([JSON.stringify(worldwideScores, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "worldwide_scores.json";
+    a.click();
+    URL.revokeObjectURL(url);
+})();
+
