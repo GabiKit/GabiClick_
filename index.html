@@ -56,6 +56,7 @@
 <body>
 
   <h1>GabiClick!</h1>
+  <!-- Obrazki online, nie potrzebujesz lokalnych plików -->
   <img id="gabicat" src="https://i.imgur.com/8QKjT3b.png" alt="Gabi" />
   <div id="counter">Kliknięcia: 0</div>
 
@@ -74,7 +75,6 @@
 
   <script>
     document.addEventListener("DOMContentLoaded", () => {
-      // Firebase config
       const firebaseConfig = {
         apiKey: "AIzaSyDwSpx8MydvD478oCvj59zYmmKXMJO-_c0",
         authDomain: "gabiclick.firebaseapp.com",
@@ -95,7 +95,7 @@
       let count = 0;
       const playerName = prompt("Podaj swój nick:") || "Anonim";
 
-      // Obsługa kliknięcia
+      // Klikanie w Gabi
       catImg.addEventListener("mousedown", () => { catImg.src = "https://i.imgur.com/ZmNZxZ2.png"; });
       catImg.addEventListener("mouseup", () => { catImg.src = "https://i.imgur.com/8QKjT3b.png"; });
       catImg.addEventListener("click", () => {
@@ -105,7 +105,7 @@
         playerRef.set({ name: playerName, clicks: count });
       });
 
-      // Aktualizacja tabeli i sumy globalnej
+      // Aktualizacja tabeli i globalnej sumy
       const playersRef = database.ref('players');
       playersRef.on('value', (snapshot) => {
         let totalClicks = 0;
