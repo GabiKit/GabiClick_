@@ -16,12 +16,7 @@ body {
   padding-top: 20px;
 }
 h1 { margin-bottom: 20px; }
-#gabicat {
-  cursor: pointer;
-  width: 300px;
-  height: auto;
-  transition: transform 0.1s;
-}
+#gabicat { cursor: pointer; width: 300px; height: auto; transition: transform 0.1s; }
 #gabicat:active { transform: scale(0.95); }
 #counter { margin-top: 20px; font-size: 24px; }
 #worldwide-counter { margin-top: 30px; font-size: 28px; font-weight: bold; }
@@ -32,54 +27,48 @@ h1 { margin-bottom: 20px; }
 <h1>GabiClick!</h1>
 <img id="gabicat" src="gabi_closed.png" alt="Gabi" />
 <div id="counter">Kliknięcia: 0</div>
-
 <div id="worldwide-counter">🌍 WorldWide – 0</div>
 
-<!-- Firebase SDK -->
-<script src="https://www.gstatic.com/firebasejs/9.6.4/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.6.4/firebase-database.js"></script>
+<!-- Firebase v9 CDN w trybie modułowym -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
+import { getDatabase, ref, onValue, runTransaction } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js";
 
-<script>
-document.addEventListener("DOMContentLoaded", () => {
-  // Firebase config
-  const firebaseConfig = {
-    apiKey: "AIzaSyDwSpx8MydvD478oCvj59zYmmKXMJO-_c0",
-    authDomain: "gabiclick.firebaseapp.com",
-    databaseURL: "https://gabiclick-default-rtdb.firebaseio.com",
-    projectId: "gabiclick",
-    storageBucket: "gabiclick.firebasestorage.app",
-    messagingSenderId: "952730877831",
-    appId: "1:952730877831:web:93944279f48461915add22",
-    measurementId: "G-RPM5E40GP3"
-  };
+const firebaseConfig = {
+  apiKey: "AIzaSyDwSpx8MydvD478oCvj59zYmmKXMJO-_c0",
+  authDomain: "gabiclick.firebaseapp.com",
+  databaseURL: "https://gabiclick-default-rtdb.firebaseio.com",
+  projectId: "gabiclick",
+  storageBucket: "gabiclick.firebasestorage.app",
+  messagingSenderId: "952730877831",
+  appId: "1:952730877831:web:93944279f48461915add22",
+  measurementId: "G-RPM5E40GP3"
+};
 
-  const app = firebase.initializeApp(firebaseConfig);
-  const database = firebase.database(app);
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+const worldwideRef = ref(db, 'worldwide');
 
-  const catImg = document.getElementById("gabicat");
-  const counterDisplay = document.getElementById("counter");
-  const worldwideCounter = document.getElementById("worldwide-counter");
+const catImg = document.getElementById("gabicat");
+const counterDisplay = document.getElementById("counter");
+const worldwideCounter = document.getElementById("worldwide-counter");
 
-  let localClicks = 0;
+let localClicks = 0;
 
-  // Pobieramy globalny licznik WorldWide z Firebase
-  const worldwideRef = database.ref('worldwide');
+// Nasłuch zmian globalnego licznika
+onValue(worldwideRef, (snapshot) => {
+  const total = snapshot.val() || 0;
+  worldwideCounter.textContent = `🌍 WorldWide – ${total}`;
+});
 
-  worldwideRef.on('value', snapshot => {
-    const total = snapshot.val() || 0;
-    worldwideCounter.textContent = `🌍 WorldWide – ${total}`;
-  });
+catImg.addEventListener("mousedown", () => { catImg.src = "gabi_open.png"; });
+catImg.addEventListener("mouseup", () => { catImg.src = "gabi_closed.png"; });
 
-  catImg.addEventListener("mousedown", () => { catImg.src = "gabi_open.png"; });
-  catImg.addEventListener("mouseup", () => { catImg.src = "gabi_closed.png"; });
-
-  catImg.addEventListener("click", () => {
-    localClicks++;
-    counterDisplay.textContent = `Kliknięcia: ${localClicks}`;
-
-    // Aktualizujemy globalny licznik w Firebase atomowo
-    worldwideRef.transaction(current => (current || 0) + 1);
-  });
+catImg.addEventListener("click", () => {
+  localClicks++;
+  counterDisplay.textContent = `Kliknięcia: ${localClicks}`;
+  runTransaction(worldwideRef, (current) => (current || 0) + 1);
 });
 </script>
 
