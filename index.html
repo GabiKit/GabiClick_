@@ -74,3 +74,48 @@ catImg.addEventListener("click", () => {
 
 </body>
 </html>
+// --- DODANE: Licznik kliknięć według kraju ---
+
+import { update } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js";
+
+// Element do wyświetlania top krajów
+const topCountriesDiv = document.createElement("div");
+topCountriesDiv.id = "top-countries";
+topCountriesDiv.style.marginTop = "20px";
+topCountriesDiv.style.fontSize = "20px";
+topCountriesDiv.textContent = "🌎 Top Kraje: ładowanie...";
+document.body.appendChild(topCountriesDiv);
+
+// Funkcja do pobierania kraju użytkownika (z API ipapi.co)
+async function getCountryCode() {
+  try {
+    const res = await fetch("https://ipapi.co/json/");
+    const data = await res.json();
+    return data.country_code || "??";
+  } catch {
+    return "??";
+  }
+}
+
+let userCountry = await getCountryCode();
+const countryRef = ref(db, `countries/${userCountry}`);
+
+// Po kliknięciu – zwiększamy licznik także dla kraju
+catImg.addEventListener("click", () => {
+  runTransaction(countryRef, (current) => (current || 0) + 1);
+});
+
+// --- Nasłuch top krajów ---
+const countriesRef = ref(db, "countries");
+onValue(countriesRef, (snapshot) => {
+  const data = snapshot.val() || {};
+  const sorted = Object.entries(data)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 5);
+  
+  const topList = sorted
+    .map(([country, count], i) => `${i + 1}. ${country} – ${count}`)
+    .join("<br>");
+  
+  topCountriesDiv.innerHTML = `🌎 Top Kraje:<br>${topList || "Brak danych"}`;
+});
